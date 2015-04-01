@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+     <!-- Allow web app to be run in full-screen mode. -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+     <!-- Configure the status bar. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+     <!-- Make the app title different than the page title. -->
+    <meta name="apple-mobile-web-app-title" content="Get appy!"> 
+
+     <!-- iPhone retina icon (iOS < 7) -->
+    <link href="http://zizaza.com/cache/icon_114/iconset/581076/581081/PNG/512/hiking/map_hiking_tourism_map_png_map_icon_hiking_icon_png.png"
+    sizes="114x114"
+    rel="apple-touch-icon-precomposed">
+
+<!-- iPhone 5 startup image -->
+<link href="http://www.linitix.com/wp-content/uploads/2014/04/iPhone_5.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+<!-- iPhone, retina -->
+<link href="http://www.linitix.com/wp-content/uploads/2014/04/iPhone_4.png" media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">
+
+
+    <style type="text/css">
+      html, body, #map-canvas{ height: 100%;width:100%; margin: 0; padding: 0;}
+      #install {
+        width:640px;
+        display: none;
+        position:fixed;
+        bottom:0;
+        margin-left: 30px;
+      }
+      h1{
+        color: #000000; 
+        font-family: 'Lato', sans-serif; 
+        font-size: 54px; 
+        font-weight: 300; 
+        line-height: 58px; 
+        margin: 0 0 58px;
+      }
+    </style>
+    <!-- iPhone -->
+    <link rel="apple-touch-startup-image" media="(device-width: 320px)" href="mouse.jpg">
+    <!-- iPhone (Retina) -->
+    <link rel="apple-touch-startup-image" media="(device-width: 320px) and (-webkit-device-pixel-ratio: 2)" href="mouse.jpg">
+
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?">
+    </script>
+
+    <script type="text/javascript">
+
+
+      function styleBtn(text){
+        var controlUI = document.createElement('div');
+        controlUI.style.display = 'inline-block';
+        controlUI.style.backgroundColor = '#eee';
+        controlUI.style.border = '2px solid #eee';
+        controlUI.style.borderRadius = '3px';
+        controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+        controlUI.style.cursor = 'pointer';
+        controlUI.style.margin = '0 5px 22px 0';
+        controlUI.style.textAlign = 'center';
+        controlUI.title = 'Click to pan!';
+
+        var controlText = document.createElement('div');
+        controlText.style.color = 'rgb(25,25,25)';
+        controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+        controlText.style.fontSize = '16px';
+        controlText.style.lineHeight = '38px';
+        controlText.style.paddingLeft = '5px';
+        controlText.style.paddingRight = '5px';
+        controlText.innerHTML = text;
+        controlUI.appendChild(controlText);
+
+        return controlUI
+      }
+
+      function PanControl(controlDiv, map, x, y, ctrlText) {
+        controlUI = styleBtn(ctrlText);
+        controlDiv.appendChild(controlUI);
+
+        // Setup the click event listeners: simply set the map to
+        // Chicago
+        google.maps.event.addDomListener(controlUI, 'click', function() {
+          map.panBy(x,y);
+        });
+      }
+
+      function ZoomControl(controlDiv, map, scale, ctrlText) {
+        controlUI = styleBtn(ctrlText);
+        controlDiv.appendChild(controlUI);
+
+        // Setup the click event listeners: simply set the map to
+        // Chicago
+        google.maps.event.addDomListener(controlUI, 'click', function() {
+          //map.setAnimation('Bounce');
+          map.setZoom(map.zoom + scale);
+        });
+      }
+
+      function initialize() {
+        var mapOptions = {
+          center: { lat: 59.347480, lng: 18.073529},
+          zoom: 15,
+          mapTypeId: google.maps.MapTypeId.SATELLITE,
+          tilt: 45,
+          disableDefaultUI: true
+        };
+
+        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        var controlDiv = document.createElement('div');
+
+        var panLeftControl = new PanControl(controlDiv, map, -100, 0, 'left');
+        var panRightControl = new PanControl(controlDiv, map, 100, 0,'right');
+        var panUpControl = new PanControl(controlDiv, map, 0,-100, 'up');
+        var panDownControl = new PanControl(controlDiv, map, 0,100, 'down');
+        var zoomOutControl = new ZoomControl(controlDiv, map, -1, 'out');
+        var zoomInControl = new ZoomControl(controlDiv, map, 1, 'in');
+
+        map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(controlDiv);
+
+        var Dhuset = new google.maps.Marker({
+          draggable: true,
+          animation: google.maps.Animation.BOUNCE,
+          position: { lat: 59.347480, lng: 18.074929},
+          map: map
+        });
+
+        var Ehuset = new google.maps.Marker({
+          draggable: false,
+          animation: google.maps.Animation.DROP,
+          position: { lat: 59.347480, lng: 18.072929},
+          map: map
+        });
+
+        var contentString = '<div id="content">'+
+        '<div id="siteNotice">'+
+        '</div>'+
+        '<h1 id="firstHeading" class="firstHeading">E-huset</h1>'+
+        '<div id="bodyContent">'+
+        '<p><b>Huset</b>, also referred to as <b>E</b>, is a large ' +
+        'tegel rock formation in the southern part of the '+
+        'Campus, central KTH.</p>'+
+        '</div>'+
+        '</div>';
+
+        var infoE = new google.maps.InfoWindow({
+          content: contentString
+        });
+
+        google.maps.event.addListener(Ehuset, 'click', function() {
+          infoE.open(map,Ehuset);
+        });
+
+      }
+
+
+
+      function startup(){
+        if (!window.navigator.standalone) { // fullscreen mode
+          //isntallationsanvsining
+          document.getElementById("install").style.display = "block";
+          document.getElementById("map-canvas").style.display = "none";        
+        }else {
+          initialize();
+        }
+      }
+
+
+
+
+
+
+      google.maps.event.addDomListener(window, 'load', startup);
+    </script>
+
+  </head>
+
+  <body>
+    <div id="map-canvas">
+    </div>
+    <div id="install">
+      <img src="http://www.psdgraphics.com/wp-content/uploads/2010/06/map-with-pin.jpg" style="width:550px"/><br/>
+      <img src="http://www.clipartbest.com/cliparts/9cz/EdL/9czEdLrBi.jpeg" style="margin-left:60px;"/><h1 style="margin-top:-70px">Get appy!</h1>
+    </div>
+  </body>
+
+
+</html>
